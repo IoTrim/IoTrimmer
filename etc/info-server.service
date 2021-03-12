@@ -1,0 +1,13 @@
+# copy file to /lib/systemd/system/info-server.service
+# to start the service run: systemctl start info-server
+# to start it at boot run: systemctl enable info-server
+[Unit]
+Description=HTTP Info Server
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /opt/IoTrimmer/InfoServer.py 
+
+[Install]
+WantedBy=multi-user.target
