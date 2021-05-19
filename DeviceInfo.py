@@ -8,8 +8,8 @@ class DeviceInfo(object):
     def loadInfo(self):
         with open(self.defaultModelFile) as f:
             for line in f.readlines():
-                parts = line.split(',')
-                self.devices[parts[0]] = parts[1].strip()
+                parts = line.split(';')
+                self.devices[parts[0]] = parts[0].strip()
 
     def toHTML(self, name, selected = ""):
         html = f"<select name='{name}'><option value=''></option>"
