@@ -15,7 +15,7 @@
   <input class="editable" type="password" id="wifiPassword" onChange="submitPassword(this.value)" value=${wifiPassword}>
   <input type="checkbox" onclick="togglePasswordView()" value="0"/>Show Password 
   <br>
-  <p id="passwordConfirmation" style="display:none; color: red">Password Changed</p>
+  <p class="passwordConfirmation" style="display:none; color: red">Password Changed</p>
 
   </p>
 
@@ -60,7 +60,7 @@
   function submitPassword(p) {
     if (p.length < 8) { alert('Minimum password length is 8 characters. The password has not been changed.'); }
     else {$.post("updateWifiPassword", {'text': p})};
-    document.getElementById("passwordConfirmation").style.display = "block";
+    $(".passwordConfirmation").css("display", "block");
   }
 
   function togglePasswordView() {
@@ -98,6 +98,7 @@
       
       // Handle outside click
       $(document).click(function (event) {
+        $(".passwordConfirmation").css("display", "none");
         if (!$(event.target).closest('.editable').length) {
           if ($input.val()) {
             var inputId = $input.attr('id');
@@ -113,7 +114,6 @@
             console.log(inputVal);
             $.post(endPoint, { 'id': inputId, 'text': inputVal })
             
-            //alert($input.attr('id') +": " + $input.val())
           }
           that.find('input').remove();
           $(document).off('click');
