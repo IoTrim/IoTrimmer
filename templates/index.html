@@ -12,7 +12,11 @@
     IoTrimmer in order for the changes to take place. The password must be at least 8 characters long and must not contain
     a space<br>
 
-  <div class="editable" id="wifiPassword">${wifiPassword}</div>
+  <input class="editable" type="password" id="wifiPassword" onChange="submitPassword(this.value)" value=${wifiPassword}>
+  <input type="checkbox" onclick="togglePasswordView()" value="0"/>Show Password 
+  <br>
+  <p id="passwordConfirmation" style="display:none; color: red">Password Changed</p>
+
   </p>
 
   <p>List of devices (monitored devices are displayed in green, not monitored devices are displayed in red).
@@ -42,13 +46,105 @@
 
   <p>
   <div style="font-size: 26px; font-weight: bold;">Enable IoTrimmer: <label class="toggle-control">
-      <input class="enable" type="checkbox" checked="checked">
+      <input class="enable" type="checkbox" checked="false">
       <span class="control"></span>
     </label></div>
   </p>
 
 </html>
 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+
+  function submitPassword(p) {
+    if (p.length < 8) { alert('Minimum password length is 8 characters. The password has not been changed.'); }
+    else {$.post("updateWifiPassword", {'text': p})};
+    document.getElementById("passwordConfirmation").style.display = "block";
+  }
+
+  function togglePasswordView() {
+    var p = document.getElementById("wifiPassword");
+    if (p.type === "password") {
+      p.type = "text";
+    } else {
+      p.type = "password";
+    }
+  } 
+
+  
+  $(document).ready(function () {
+    $('.editable').on('click', function (event) {
+      var that = $(this);
+      if (that.find('input').length > 0) {
+        return;
+      }
+      var currentText = that.text();
+      var eleId = event.target.id
+      
+      var $input = $('<input>').val(currentText)
+      .css({
+        'position': 'absolute',
+        top: '3px',
+        left: '3px',
+        width: that.width(),
+        height: that.height(),
+        opacity: 0.9,
+        padding: '10px'
+      }).attr('id', eleId);
+      
+      $(this).append($input);
+      $input.focus();
+      
+      // Handle outside click
+      $(document).click(function (event) {
+        if (!$(event.target).closest('.editable').length) {
+          if ($input.val()) {
+            var inputId = $input.attr('id');
+            var inputVal = $input.val();
+            var endPoint = "";
+            
+            that.text(inputVal);
+            
+            
+            if (inputId == "generalInfo") { endPoint = "updateGeneralInfo"; }
+            else {endPoint = "updateDeviceInfo"; }
+            
+            console.log(inputVal);
+            $.post(endPoint, { 'id': inputId, 'text': inputVal })
+            
+            //alert($input.attr('id') +": " + $input.val())
+          }
+          that.find('input').remove();
+          $(document).off('click');
+        }
+      });
+    });
+    
+    $("#restartButton").click(function (event) {
+      if (confirm("Are you sure you want to restart the IoTrimmer?")) {
+        $.post("restart", { 'id': 'restartButton' });
+      }
+    });
+    
+    $("#rebootButton").click(function (event) {
+      if (confirm("Are you sure you want to reboot the IoTrimmer?")) {
+        $.post("reboot", { 'id': 'rebootButton' });
+      }
+    });
+    // toggle iotrimmer on or off
+    $(".enable").click(function (event) {
+      if ($('.enable').prop('checked') == false) {
+        if (confirm("Are you sure you want to disable the IoTrimmer?")) {
+          $.post("stop");
+        }
+      }
+      else {
+        $.post("start");
+      }
+    });
+  });
+</script>
 
 <style>
   html,
@@ -154,87 +250,3 @@
   color: white;
 }*/
 </style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>
-  function checkPasswordLength() {
-    var password = $("#wifiPassword").text();
-    //alert("password: "+password);
-    if (password.length < 8) { alert('Minimum password length is 8 characters.'); }
-  }
-
-  $(document).ready(function () {
-    $('.editable').on('click', function (event) {
-      var that = $(this);
-      if (that.find('input').length > 0) {
-        return;
-      }
-      var currentText = that.text();
-      var eleId = event.target.id
-
-      var $input = $('<input>').val(currentText)
-        .css({
-          'position': 'absolute',
-          top: '3px',
-          left: '3px',
-          width: that.width(),
-          height: that.height(),
-          opacity: 0.9,
-          padding: '10px'
-        }).attr('id', eleId);
-
-      $(this).append($input);
-      $input.focus();
-
-      // Handle outside click
-      $(document).click(function (event) {
-        if (!$(event.target).closest('.editable').length) {
-          if ($input.val()) {
-            var inputId = $input.attr('id');
-            var inputVal = $input.val();
-            var endPoint = "";
-
-            that.text(inputVal);
-
-
-            if (inputId == "generalInfo") { endPoint = "updateGeneralInfo"; }
-            else if (inputId == "wifiPassword") {
-              endPoint = "updateWifiPassword";
-              //if(inputVal.length < 8) { alert('Minimum password length is 8 characters.'+inputVal); return; }
-            }
-            else { endPoint = "updateDeviceInfo"; }
-
-            $.post(endPoint, { 'id': inputId, 'text': inputVal })
-
-            //alert($input.attr('id') +": " + $input.val())
-          }
-          that.find('input').remove();
-          checkPasswordLength();
-          $(document).off('click');
-        }
-      });
-    });
-
-    $("#restartButton").click(function (event) {
-      if (confirm("Are you sure you want to restart the IoTrimmer?")) {
-        $.post("restart", { 'id': 'restartButton' });
-      }
-    });
-
-    $("#rebootButton").click(function (event) {
-      if (confirm("Are you sure you want to reboot the IoTrimmer?")) {
-        $.post("reboot", { 'id': 'rebootButton' });
-      }
-    });
-    // toggle iotrimmer on or off
-    $(".enable").click(function (event) {
-      if ($('.enable').prop('checked') == false) {
-        if (confirm("Are you sure you want to disable the IoTrimmer?")) {
-          $.post("stop");
-        }
-      }
-      else {
-        $.post("start");
-      }
-    });
-  });
-</script>
