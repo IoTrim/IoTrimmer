@@ -11,7 +11,6 @@ class Trimlist(object):
             for line in f.readlines():
                 parts = line.split(';')
                 self.trimlist[parts[0]].append(parts[1].strip())
-        print(self.trimlist)
 
     def __getitem__(self, deviceId):
         try:

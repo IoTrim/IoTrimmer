@@ -111,6 +111,10 @@ class DadaHandler(BaseHTTPRequestHandler):
             self._updateDeviceInfo(data)
         elif self.path == "/updateWifiPassword":
             self._updateWifiPassword(data)
+        elif self.path == "/stop":
+            self._stopMoniotr()
+        elif self.path == "/start":
+            self._startMoniotr()
 
     def _updateDeviceInfo(self, data):
         data['mac'], data['what'] = data['id'].split('_')
@@ -141,6 +145,11 @@ class DadaHandler(BaseHTTPRequestHandler):
         #time.sleep(15)
         subprocess.run(["systemctl", "restart", "info-server.service"])
 
+    def _stopMoniotr(self):
+        subprocess.run(["/opt/moniotr/bin/moniotr-ctrl", "stop"])
+
+    def _startMoniotr(self):
+        subprocess.run(["/opt/moniotr/bin/moniotr-ctrl", "start"])
 
     def _getGeneralInfo(self):
         gi = GeneralInfo()
