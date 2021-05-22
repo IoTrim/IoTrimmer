@@ -173,12 +173,17 @@ class DadaHandler(BaseHTTPRequestHandler):
         self.getWifiInfo()
         if len(data['text']) < 8:
             return
+        if ' ' in data['text']:
+            return
         self.wifi.setPassword(data['text'])
         self.wifi.saveConfig()
         subprocess.run(["service", "hostapd", "restart"])
 
     def _updateWifiSSID(self, data):
         self.getWifiInfo()
+        forbiddenChars = "?$[\]+"
+        if any(char in forbiddenChars for char in data['text']):
+            return
         self.wifi.setSSID(data['text'])
         self.wifi.saveConfig()
         subprocess.run(["service", "hostapd", "restart"])
