@@ -27,6 +27,12 @@ class WifiInfo(object):
             for k, v in self.config.items():
                 f.write(f"{k}={v}\n")
 
+    def getSSID(self):
+        return self.config['ssid']
+
+    def setSSID(self, ssid):
+        self.config['ssid'] = ssid
+
     def getPassword(self):
         return self.config['wpa_passphrase']
 

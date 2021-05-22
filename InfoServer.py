@@ -75,6 +75,7 @@ class DadaHandler(BaseHTTPRequestHandler):
 
         self.getWifiInfo()
         data['wifiPassword'] = self.wifi.getPassword()
+        data['ssid'] = self.wifi.getSSID()
 
         pl = ProcessList()
         pl.processesRunning()
@@ -111,6 +112,8 @@ class DadaHandler(BaseHTTPRequestHandler):
             self._updateDeviceInfo(data)
         elif self.path == "/updateWifiPassword":
             self._updateWifiPassword(data)
+        elif self.path == "/updateSSID":
+            self._updateWifiSSID(data)
         elif self.path == "/stop":
             self._stopMoniotr()
         elif self.path == "/start":
@@ -172,6 +175,13 @@ class DadaHandler(BaseHTTPRequestHandler):
             return
         self.wifi.setPassword(data['text'])
         self.wifi.saveConfig()
+        subprocess.run(["service", "hostapd", "restart"])
+
+    def _updateWifiSSID(self, data):
+        self.getWifiInfo()
+        self.wifi.setSSID(data['text'])
+        self.wifi.saveConfig()
+        subprocess.run(["service", "hostapd", "restart"])
 
 
 #def run(server_class=HTTPServer, handler_class=S, port=80):
