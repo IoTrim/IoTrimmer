@@ -21,7 +21,8 @@ class Devices(object):
     def loadDevices(self):
         try:
             for mac in os.listdir(self.baseDir):
-                self.devices[mac] = Device(self.infoBaseDir, mac, self.processList.isMacMonitored(mac), 
+                name = open(self.baseDir + '/' + mac + "/name.txt").read().strip()
+                self.devices[mac] = Device(self.infoBaseDir, name, mac, self.processList.isMacMonitored(mac), 
                         self.deviceMapping)
 
         except FileNotFoundError as e:
@@ -45,9 +46,10 @@ class Devices(object):
 
 class Device(object):
 
-    def __init__(self, baseDir, mac, monitored, mapping):
+    def __init__(self, baseDir, name, mac, monitored, mapping):
         self.baseDir = baseDir
         self.mac = mac
+        self.name = name
         self.normalisedMac = self._normaliseMac(self.mac)
         self.modelFile = "modelFile.txt"
         self.publicInfoFile = "publicInfo.txt"
@@ -73,11 +75,12 @@ class Device(object):
     def getDict(self):
         return {'mac': self.mac, 
                 'class': 'green' if self.monitored else 'red',
+                'name': self.name,
                 'vendor': self.vendor,
                 'model': self.model,
                 'publicInfo': self.publicInfo,
                 'privateInfo': self.privateInfo,
-                'deviceInfo': self.deviceInfo.toHTML(f"{self.mac}_deviceId", self.deviceId),
+                'deviceInfo': self.deviceInfo.toHTML(self.name),
                 'trimlist': self.trimlist
                }
 
@@ -126,3 +129,8 @@ class Device(object):
 
     def __repr__(self):
         return f"{self.mac}: {self.publicInfo} {self.privateInfo} {self.monitored}"
+
+
+if __name__ == "__main__":
+    devices = Devices()
+    devices.loadDevices()

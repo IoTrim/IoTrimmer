@@ -70,8 +70,7 @@
     } else {
       p.type = "password";
     }
-  } 
-
+  }
   
   $(document).ready(function () {
     $('.editable').on('click', function (event) {
@@ -98,7 +97,7 @@
       
       // Handle outside click
       $(document).click(function (event) {
-        $(".passwordConfirmation").css("display", "none");
+        $(".passwordConfirmation").css("display", "none").delay(500);
         if (!$(event.target).closest('.editable').length) {
           if ($input.val()) {
             var inputId = $input.attr('id');
