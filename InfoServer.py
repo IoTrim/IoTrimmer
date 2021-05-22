@@ -115,6 +115,8 @@ class DadaHandler(BaseHTTPRequestHandler):
             self._stopMoniotr()
         elif self.path == "/start":
             self._startMoniotr()
+        elif self.path == "/renameDevice":
+            self._renameDevice(data)
 
     def _updateDeviceInfo(self, data):
         data['mac'], data['what'] = data['id'].split('_')
@@ -150,6 +152,9 @@ class DadaHandler(BaseHTTPRequestHandler):
 
     def _startMoniotr(self):
         subprocess.run(["/opt/moniotr/bin/moniotr-ctrl", "start"])
+
+    def _renameDevice(self, data):
+        subprocess.run(["/opt/moniotr/bin/identify-device", f"{data['mac']}", f"{data['name']}"])
 
     def _getGeneralInfo(self):
         gi = GeneralInfo()

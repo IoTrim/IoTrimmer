@@ -14,13 +14,15 @@ class DeviceInfo(object):
             self.devices["unknown"] = "unknown"
 
     def toHTML(self, name):
-        html = f"<select>"
+        html = ""
 
         for device, deviceName in self.devices.items():
             sel = ' selected' if device == name else ''
             html+= f"<option value='{device}'{sel}>{deviceName}</option>"
-               
-        html+= f"</select>"
+        
+        if name == '':
+            html+= f"<option selected>identifying device...</option>"
+
 
         return html
 
