@@ -67,7 +67,6 @@ class DadaHandler(BaseHTTPRequestHandler):
         self.wifi = WifiInfo()
         self.wifi.loadConfig()
 
-
     def do_GET(self):
         self._set_response()
 

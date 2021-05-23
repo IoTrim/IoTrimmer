@@ -22,7 +22,8 @@ class Devices(object):
         try:
             for mac in os.listdir(self.baseDir):
                 name = open(self.baseDir + '/' + mac + "/name.txt").read().strip()
-                self.devices[mac] = Device(self.infoBaseDir, name, mac, self.processList.isMacMonitored(mac), 
+                vendor = open(self.baseDir + '/' + mac + "/vendor.txt").read().strip()
+                self.devices[mac] = Device(self.infoBaseDir, name, mac, vendor, self.processList.isMacMonitored(mac), 
                         self.deviceMapping)
 
         except FileNotFoundError as e:
@@ -46,16 +47,15 @@ class Devices(object):
 
 class Device(object):
 
-    def __init__(self, baseDir, name, mac, monitored, mapping):
+    def __init__(self, baseDir, name, mac, vendor, monitored, mapping):
         self.baseDir = baseDir
         self.mac = mac
         self.name = name
-        self.normalisedMac = self._normaliseMac(self.mac)
         self.modelFile = "modelFile.txt"
         self.publicInfoFile = "publicInfo.txt"
         self.privateInfoFile = "privateInfo.txt"
         self.monitored = monitored
-        self.vendor = ''
+        self.vendor = vendor
 
         self.macLookup = MacLookup()
 
@@ -93,8 +93,6 @@ class Device(object):
         self.publicInfo = self._loadInfoFromFile(self.publicInfoFile)
         self.privateInfo = self._loadInfoFromFile(self.privateInfoFile)
 
-        self._loadVendor()
-
     def _loadInfoFromFile(self, fileName):
         path = os.path.join(self.baseDir, self.mac, fileName)
         
@@ -105,15 +103,6 @@ class Device(object):
             info = ""
 
         return info
-
-    def _loadVendor(self):
-        try:
-            self.vendor = self.macLookup.lookup(self.normalisedMac)
-        except KeyError:
-            self.vendor = 'Unknown'
-  
-    def _normaliseMac(self, mac):
-        return ":".join([n.zfill(2) for n in mac.split(":")])
 
     def updateInfo(self, data):
         if data['what'] == 'model':
